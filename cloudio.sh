@@ -17,12 +17,12 @@
 ### CONFIGURATION ###
 
 # Absolute paths
-LOCAL_DIR=/home/myname/cloud
-CONFIG=/home/myname/.cloudio
+LOCAL_DIR=~/cloud
+CONFIG=~/.cloudio
 REMOTE_DIR=/home/myremote/cloud
 
 # Set KEYPAIR="" if you are not using a keypair
-KEYPAIR=/home/myname/secret.pem
+KEYPAIR=~/secret.pem
 
 REMOTE_USER=myremote
 REMOTE_HOST=myremotehost
