@@ -17,29 +17,44 @@
 ### CONFIGURATION ###
 
 # Absolute paths
-LOCAL_DIR=/home/myname/cloud
-CONFIG=/home/myname/.cloudio
-REMOTE_DIR=/home/myremote/cloud
+
+#   /home/myname/cloud
+LOCAL_DIR=""
+
+#   /home/myname/.cloudio
+CONFIG_DIR=""
+
+#   /home/myname/.cloudio/config
+CONFIG_FILE=""
+
+#   /home/myremote/cloud
+REMOTE_DIR=""
 
 # Set KEYPAIR="" if you are not using a keypair
-KEYPAIR=/home/myname/secret.pem
+#   /home/myname/secret.pem
+KEYPAIR=""
 
-REMOTE_USER=myremote
-REMOTE_HOST=myremotehost
-NOTIFICATIONS=true
+#   myremote
+REMOTE_USER=""
+
+#   myremotehost
+REMOTE_HOST=""
+
+#   true or false
+NOTIFICATIONS=""
 
 ### END CONFIGURATION ###
 
-VERSION=0.2.1
+VERSION=0.2.2
 
-if [[ ! -d $CONFIG ]]; then
-    mkdir $CONFIG
+if [[ ! -d $CONFIG_DIR ]]; then
+    mkdir $CONFIG_DIR
 fi
 
-touch $CONFIG/local_current \
-      $CONFIG/local_next \
-      $CONFIG/remote_next \
-      $CONFIG/remote_current
+touch $CONFIG_DIR/local_current \
+      $CONFIG_DIR/local_next \
+      $CONFIG_DIR/remote_next \
+      $CONFIG_DIR/remote_current
 
 function _notify {
     if [[ $NOTIFICATIONS == true ]]; then
@@ -52,12 +67,12 @@ function _notify {
 function _getNext {
     case $1 in
         "local")
-            ls -la $LOCAL_DIR>$CONFIG/local_next
+            ls -la $LOCAL_DIR>$CONFIG_DIR/local_next
             ;;
         "remote")
             rsync --list-only --dry-run \
                 -e ssh $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/ \
-                $LOCAL_DIR/>$CONFIG/remote_next
+                $LOCAL_DIR/>$CONFIG_DIR/remote_next
             ;;
     esac
 }
@@ -78,7 +93,7 @@ fi
 # Looking for remote changes
 _getNext "remote"
 
-if [[ $(diff $CONFIG/remote_next $CONFIG/remote_current) != "" ]]; then
+if [[ $(diff $CONFIG_DIR/remote_next $CONFIG_DIR/remote_current) != "" ]]; then
     # There are some remote changes
     REMOTE_CHANGES=true
 else
@@ -89,7 +104,7 @@ fi
 # Looking for changes
 _getNext "local"
 
-if [[ $(diff $CONFIG/local_next $CONFIG/local_current) != "" ]]; then
+if [[ $(diff $CONFIG_DIR/local_next $CONFIG_DIR/local_current) != "" ]]; then
     # There are some local changes
     LOCAL_CHANGES=true
 else
@@ -145,6 +160,6 @@ elif [[ $REMOTE_CHANGES == true && $LOCAL_CHANGES == true ]]; then
     _getNext "remote"
 fi
 
-cp $CONFIG/remote_next  $CONFIG/remote_current
-cp $CONFIG/local_next   $CONFIG/local_current
+cp $CONFIG_DIR/remote_next  $CONFIG_DIR/remote_current
+cp $CONFIG_DIR/local_next   $CONFIG_DIR/local_current
 _notify "Finished :-)"
